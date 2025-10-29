@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Children • Kiddo vaccinations</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body data-page="children">
+<header>
+ <div class="navwrap"><div class="logo">Kiddo vaccinations</div></div>
+ <nav><ul></ul></nav>
+</header>
+<main class="grid">
+ <section class="panel fade">
+  <h2>Add / Edit Child</h2>
+  <form id="childForm">
+   <input type="hidden" name="childId">
+   <div>
+	<label>Name</label>
+	<input name="name" required maxlength="40">
+   </div>
+   <div>
+	<label>Date of Birth</label>
+	<input name="dob" type="date" required>
+   </div>
+   <div>
+	<label>Gender</label>
+	<select name="gender" required>
+	 <option value="">Select</option>
+	 <option>Male</option>
+	 <option>Female</option>
+	 <option>Other</option>
+	</select>
+   </div>
+   <button type="submit">Save Child</button>
+  </form>
+ </section>
+ <section class="panel fade">
+  <h2>Saved Children</h2>
+  <div id="childList" class="cardlist"></div>
+ </section>
+</main>
+<footer>Kiddo vaccinations</footer>
+<script src="main.js"></script>
+</body>
+</html>

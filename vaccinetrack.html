@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vaccine Tracker • Kiddo vaccinations</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body data-page="tracker">
+<header>
+ <div class="navwrap"><div class="logo">Kiddo vaccinations</div></div>
+ <nav><ul></ul></nav>
+</header>
+<main class="grid">
+ <section class="panel fade">
+  <h2>Select Child</h2>
+  <select id="childSelect"><option value="">Choose...</option></select>
+ </section>
+ <section class="panel fade">
+  <h2>Vaccine Schedule</h2>
+  <table>
+   <thead><tr><th>Vaccine</th><th>Age</th><th>Status</th><th>Date</th><th></th></tr></thead>
+   <tbody id="vaccineRows"></tbody>
+  </table>
+ </section>
+</main>
+<footer>Kiddo vaccinations</footer>
+<script src="main.js"></script>
+</body>
+</html>

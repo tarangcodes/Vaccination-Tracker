@@ -1,0 +1,32 @@
+# Ignore system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# node
+node_modules/
+
+# python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# logs
+logs/
+*.log
+
+# temporary
+*.tmp
+*.swp
+
+# local server
+*.sqlite
+
+# OS generated files
+ehthumbs.db
+Icon
+
+# build
+dist/
+build/
