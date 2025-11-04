@@ -423,6 +423,14 @@ footer {
 .hidden {
 	display: none !important;
 }
+.dashboard-grid {
+	grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+	.dashboard-grid {
+		grid-template-columns: 2fr 1fr;
+	}
+}
 .fade {
 	animation: fade .35s ease;
 }
