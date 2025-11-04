@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parents • Kiddo Vaccinations</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body data-page="parents">
+<header>
+ <div class="navwrap"><div class="logo">Kiddo Vaccinations</div></div>
+ <nav><ul></ul></nav>
+</header>
+<main class="grid">
+ <section class="panel fade">
+  <h2>Add / Edit Parent</h2>
+  <form id="parentForm">
+   <input type="hidden" name="parentId">
+   <div>
+	<label>Name</label>
+	<input name="name" required maxlength="40">
+   </div>
+   <div>
+	<label>Relation</label>
+	<input name="relation" required maxlength="40">
+   </div>
+   <div>
+    <label>Link to Child</label>
+    <select name="childId" required>
+        <option value="">Select Child</option>
+    </select>
+   </div>
+   <button type="submit">Save Parent</button>
+  </form>
+ </section>
+ <section class="panel fade">
+  <h2>Saved Parents</h2>
+  <div id="parentList" class="cardlist"></div>
+ </section>
+</main>
+<footer>Kiddo Vaccinations</footer>
+<script src="main.js"></script>
+</body>
+</html>

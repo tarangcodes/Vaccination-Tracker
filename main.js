@@ -2,6 +2,7 @@ const LS_USER_KEY = 'vt_users';
 const LS_SESSION_KEY = 'vt_session';
 const LS_CHILDREN_KEY = 'vt_children';
 const LS_VACCINES_KEY = 'vt_vaccines';
+const LS_PARENTS_KEY = 'vt_parents';
 
 const DEFAULT_VACCINES = [
 	{ code: 'BCG', name: 'BCG', age: 'Birth' },
@@ -59,6 +60,14 @@ function setChildren(c) {
 	write(LS_CHILDREN_KEY, c);
 }
 
+function parents() {
+	return read(LS_PARENTS_KEY, []);
+}
+
+function setParents(p) {
+	write(LS_PARENTS_KEY, p);
+}
+
 function vaccines() {
 	let v = read(LS_VACCINES_KEY, null);
 	if (!v) {
@@ -89,6 +98,11 @@ function currentUserChildren() {
 	return children().filter(c => c.user === s.username);
 }
 
+function currentUserParents() {
+	let s = session();
+	return parents().filter(p => p.user === s.username);
+}
+
 function upsertChild(data) {
 	let list = children();
 	if (!data.id) {
@@ -101,6 +115,21 @@ function upsertChild(data) {
 		list.push(data);
 	}
 	setChildren(list);
+	return data;
+}
+
+function upsertParent(data) {
+	let list = parents();
+	if (!data.id) {
+		data.id = 'p_' + Date.now();
+	}
+	let i = list.findIndex(x => x.id === data.id);
+	if (i > -1) {
+		list[i] = data;
+	} else {
+		list.push(data);
+	}
+	setParents(list);
 	return data;
 }
 
@@ -145,6 +174,7 @@ function renderNav() {
 	let links = [
 		['Dashboard', 'dashboard.html'],
 		['Children', 'childdata.html'],
+		['Parents', 'parents.html'],
 		['Tracker', 'vaccinetrack.html'],
 		['Certificate', 'certificate.html']
 	];
@@ -268,7 +298,7 @@ function page_children() {
 			d.className = 'card fade';
 			d.innerHTML = '<h3>' + c.name + '</h3>' +
 				'<div class="muted">DOB ' + c.dob + ' • ' + ageFromDob(c.dob) + '</div>' +
-				'<div class="muted">Gender ' + c.gender + '</div>' +
+				'<div class="muted">Gender ' + c.gender + ' • Blood Group ' + c.bloodGroup + '</div>' +
 				'<div class="wrap"><button data-edit="' + c.id + '" class="secondary">Edit</button></div>';
 			listEl.appendChild(d);
 		});
@@ -280,6 +310,7 @@ function page_children() {
 			form.name.value = child.name;
 			form.dob.value = child.dob;
 			form.gender.value = child.gender;
+			form.bloodGroup.value = child.bloodGroup;
 			form.scrollIntoView({ behavior: 'smooth' });
 		}));
 	}
@@ -293,6 +324,7 @@ function page_children() {
 				name: form.name.value.trim(),
 				dob: form.dob.value,
 				gender: form.gender.value,
+				bloodGroup: form.bloodGroup.value,
 				doses: currentUserChildren().find(x => x.id === form.childId.value)?.doses || {}
 			};
 			if (!data.name || !data.dob) {
@@ -300,6 +332,74 @@ function page_children() {
 				return;
 			}
 			upsertChild(data);
+			form.reset();
+			render();
+		});
+	}
+	render();
+}
+
+function page_parents() {
+	requireAuth();
+	renderNav();
+	let form = byId('parentForm');
+	let listEl = byId('parentList');
+	let childSelect = form.querySelector('[name="childId"]');
+
+	function render() {
+		let list = currentUserParents();
+		let children = currentUserChildren();
+		
+		childSelect.innerHTML = '<option value="">Select Child</option>';
+		children.forEach(c => {
+			let o = document.createElement('option');
+			o.value = c.id;
+			o.textContent = c.name;
+			childSelect.appendChild(o);
+		});
+
+		if (!list.length) {
+			listEl.innerHTML = '<div class="empty">No parents added.</div>';
+			return;
+		}
+		listEl.innerHTML = '';
+		list.forEach(p => {
+			let child = children.find(c => c.id === p.childId);
+			let d = document.createElement('div');
+			d.className = 'card fade';
+			d.innerHTML = '<h3>' + p.name + '</h3>' +
+				'<div class="muted">Relation: ' + p.relation + '</div>' +
+				(child ? '<div class="muted">Child: ' + child.name + '</div>' : '') +
+				'<div class="wrap"><button data-edit="' + p.id + '" class="secondary">Edit</button></div>';
+			listEl.appendChild(d);
+		});
+		listEl.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => {
+			let id = b.getAttribute('data-edit');
+			let parent = currentUserParents().find(x => x.id === id);
+			if (!parent) return;
+			form.parentId.value = parent.id;
+			form.name.value = parent.name;
+			form.relation.value = parent.relation;
+			form.childId.value = parent.childId;
+			form.scrollIntoView({ behavior: 'smooth' });
+		}));
+	}
+
+	if (form) {
+		form.addEventListener('submit', e => {
+			e.preventDefault();
+			let data = {
+				id: form.parentId.value || null,
+				user: session().username,
+				name: form.name.value.trim(),
+				relation: form.relation.value.trim(),
+				childId: form.childId.value
+			};
+			if (!data.name || !data.relation || !data.childId) {
+				alert('Missing fields');
+				return;
+			}
+			upsertParent(data);
 			form.reset();
 			render();
 		});
@@ -401,6 +501,7 @@ function page_certificate() {
 			'<div><div class="label">Child Name</div><div class="value">' + child.name + '</div></div>' +
 			'<div><div class="label">Date of Birth</div><div class="value">' + child.dob + ' (' + ageFromDob(child.dob) + ')</div></div>' +
 			'<div><div class="label">Gender</div><div class="value">' + child.gender + '</div></div>' +
+			'<div><div class="label">Blood Group</div><div class="value">' + child.bloodGroup + '</div></div>' +
 			'<div><div class="label">Status</div><div class="value">' + done + ' / ' + total + ' Doses</div></div>' +
 			'</div>' +
 			'<div class="divider"></div>' +
@@ -420,6 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (page === 'register') page_register();
 	if (page === 'dashboard') page_dashboard();
 	if (page === 'children') page_children();
+	if (page === 'parents') page_parents();
 	if (page === 'tracker') page_tracker();
 	if (page === 'certificate') page_certificate();
 });
